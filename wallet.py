@@ -1,25 +1,31 @@
-# wallet.py
 import json
+import os
 
-class Wallet:
-    def __init__(self):
-        with open("wallet.json") as f:
-            self.data = json.load(f)
+WALLET_FILE = "wallet.json"
 
-    def get_balance(self):
-        return self.data["balance"]
 
-    def get_address(self):
-        return self.data["public_key"]
+def create_wallet():
+    import hashlib
+    import os
 
-    def add_balance(self, amount):
-        self.data["balance"] += amount
-        self._save()
+    private = os.urandom(32).hex()
+    public = hashlib.sha256(private.encode()).hexdigest()
 
-    def _save(self):
-        with open("wallet.json", "w") as f:
-            json.dump(self.data, f, indent=4)
+    data = {
+        "private_key": private,
+        "public_key": public,
+        "balance": 0
+    }
 
-    def show(self):
-        print("🪪 ADDRESS:", self.get_address())
-        print("💰 BALANCE:", self.get_balance())
+    with open(WALLET_FILE, "w") as f:
+        json.dump(data, f, indent=4)
+
+    print("🪪 Wallet created:", public)
+
+
+def show_wallet():
+    with open(WALLET_FILE) as f:
+        data = json.load(f)
+
+    print("🪪 ADDRESS:", data["public_key"])
+    print("💰 BALANCE:", data["balance"])
